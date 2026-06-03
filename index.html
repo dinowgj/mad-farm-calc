@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>疯狂农场价格计算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);
+            min-height: 100vh;
+            padding: 16px;
+            color: #2e3a2f;
+        }
+        
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2e7d32;
+            margin-bottom: 16px;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .card-title {
+            color: #388e3c;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 4px;
+            color: #5d6d5e;
+            font-size: 0.75rem;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #c5e1a5;
+            border-radius: 10px;
+            background: #fafff8;
+            color: #2e3a2f;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #4caf50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+        }
+        
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #66bb6a, #43a047);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+            margin-top: 8px;
+        }
+        
+        .btn-secondary:hover {
+            background: #eeeeee;
+        }
+        
+        .result {
+            text-align: center;
+            padding: 20px 14px;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        }
+        
+        .result-label {
+            color: #558b2f;
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+        
+        .result-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2e7d32;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-detail {
+            font-size: 0.75rem;
+            color: #5d6d5e;
+            margin-top: 8px;
+            line-height: 1.5;
+            background: rgba(255,255,255,0.6);
+            padding: 8px;
+            border-radius: 8px;
+        }
+        
+        .mutations-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+        
+        .mutation-btn {
+            padding: 10px 4px;
+            border: 1px solid #c5e1a5;
+            border-radius: 10px;
+            background: #fafff8;
+            color: #5d6d5e;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .mutation-btn:hover {
+            background: #f1f8e9;
+            border-color: #a5d6a7;
+        }
+        
+        .mutation-btn.active {
+            background: #4caf50;
+            border-color: #43a047;
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        .mutation-btn.active-basic {
+            background: #8bc34a;
+            border-color: #7cb342;
+            color: #fff;
+        }
+        
+        .mutation-btn.active-special {
+            background: #7e57c2;
+            border-color: #7b1fa2;
+            color: #fff;
+        }
+        
+        .mutation-btn.active-weather {
+            background: #42a5f5;
+            border-color: #1e88e5;
+            color: #fff;
+        }
+        
+        .crop-info {
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 4px;
+        }
+        
+        .tips {
+            font-size: 0.65rem;
+            color: #9e9e9e;
+            margin-top: 2px;
+        }
+        
+        .selected-list {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 6px;
+            min-height: 16px;
+            background: #f5f5f5;
+            padding: 6px 8px;
+            border-radius: 6px;
+        }
+        
+        .quality-tag {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            color: #fff;
+            margin-right: 4px;
+        }
+        
+        .quality-zhizhen { background: linear-gradient(135deg, #ff9800, #f44336); }
+        .quality-chengse { background: #ff9800; }
+        .quality-zise { background: #9c27b0; }
+        .quality-lanse { background: #2196f3; }
+        .quality-lanlu { background: #00acc1; }
+        .quality-lvse { background: #4caf50; }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #c8e6c9, transparent);
+            margin: 12px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌾 疯狂农场价格计算器</h1>
+        
+        <!-- 作物选择 -->
+        <div class="card">
+            <div class="card-title">📌 选择作物</div>
+            <select id="crop" onchange="updateCropInfo()">
+                <optgroup label="至臻">
+                    <option value="370" data-name="向日葵" data-quality="至臻">向日葵</option>
+                    <option value="9000" data-name="蟠桃" data-quality="至臻">蟠桃</option>
+                    <option value="25000" data-name="大王菊" data-quality="至臻">大王菊</option>
+                    <option value="25000" data-name="葡萄" data-quality="至臻">葡萄</option>
+                    <option value="50000" data-name="惊奇蘑" data-quality="至臻">惊奇蘑</option>
+                    <option value="9500" data-name="仙人掌象" data-quality="至臻">仙人掌象</option>
+                    <option value="8500" data-name="幻月花" data-quality="至臻">幻月花</option>
+                    <option value="33000" data-name="星空玫瑰" data-quality="至臻">星空玫瑰</option>
+                    <option value="11500" data-name="月兔" data-quality="至臻">月兔</option>
+                    <option value="85000" data-name="红包树" data-quality="至臻">红包树</option>
+                    <option value="33100" data-name="朝天椒" data-quality="至臻">朝天椒</option>
+                    <option value="46200" data-name="松树" data-quality="至臻">松树</option>
+                    <option value="76000" data-name="月影梅" data-quality="至臻">月影梅</option>
+                    <option value="49600" data-name="彼岸花" data-quality="至臻">彼岸花</option>
+                    <option value="9360" data-name="月蟾蜍" data-quality="至臻">月蟾蜍</option>
+                </optgroup>
+                <optgroup label="橙色">
+                    <option value="2150" data-name="猕猴桃" data-quality="橙色">猕猴桃</option>
+                    <option value="8700" data-name="草莓" data-quality="橙色">草莓</option>
+                    <option value="200" data-name="榴莲" data-quality="橙色">榴莲</option>
+                    <option value="800" data-name="荔枝" data-quality="橙色">荔枝</option>
+                    <option value="3500" data-name="液光藤" data-quality="橙色">液光藤</option>
+                    <option value="3400" data-name="月核树" data-quality="橙色">月核树</option>
+                </optgroup>
+                <optgroup label="紫色">
+                    <option value="3950" data-name="月莓" data-quality="紫色">月莓</option>
+                    <option value="4000" data-name="星叶菜" data-quality="紫色">星叶菜</option>
+                    <option value="24836" data-name="香蕉" data-quality="紫色">香蕉</option>
+                    <option value="189" data-name="苹果" data-quality="紫色">苹果</option>
+                    <option value="145" data-name="椰子" data-quality="紫色">椰子</option>
+                </optgroup>
+                <optgroup label="蓝色">
+                    <option value="350" data-name="月光草" data-quality="蓝色">月光草</option>
+                    <option value="43.6" data-name="波斯菊" data-quality="蓝色">波斯菊</option>
+                    <option value="1461" data-name="灰壤豆" data-quality="蓝色">灰壤豆</option>
+                    <option value="66" data-name="番茄" data-quality="蓝色">番茄</option>
+                    <option value="27" data-name="土豆" data-quality="蓝色">土豆</option>
+                </optgroup>
+                <optgroup label="蓝绿">
+                    <option value="3000" data-name="银辉苔" data-quality="蓝绿">银辉苔</option>
+                    <option value="103" data-name="玉米" data-quality="蓝绿">玉米</option>
+                    <option value="10.7" data-name="西瓜" data-quality="蓝绿">西瓜</option>
+                    <option value="323" data-name="月环树" data-quality="蓝绿">月环树</option>
+                    <option value="213" data-name="牵牛花" data-quality="蓝绿">牵牛花</option>
+                    <option value="582" data-name="白菜" data-quality="蓝绿">白菜</option>
+                </optgroup>
+                <optgroup label="绿色">
+                    <option value="1600" data-name="月灯草" data-quality="绿色">月灯草</option>
+                    <option value="680" data-name="月番茄" data-quality="绿色">月番茄</option>
+                    <option value="12.25" data-name="竹子" data-quality="绿色">竹子</option>
+                    <option value="215" data-name="黄瓜" data-quality="绿色">黄瓜</option>
+                </optgroup>
+            </select>
+            <div class="crop-info" id="cropInfo">选择一个作物</div>
+        </div>
+        
+        <!-- 重量输入 -->
+        <div class="card">
+            <div class="card-title">⚖️ 果实重量</div>
+            <input type="number" id="weight" placeholder="请输入重量 (kg)" step="0.01" min="0">
+            <div class="tips">例如: 1.5</div>
+        </div>
+        
+        <!-- 基础突变 -->
+        <div class="card">
+            <div class="card-title">⭐ 基础突变 (单选)</div>
+            <div class="mutations-grid" id="basicMutation">
+                <button class="mutation-btn active" data-value="1" data-name="无">无</button>
+                <button class="mutation-btn" data-value="3" data-name="银">银</button>
+                <button class="mutation-btn" data-value="10" data-name="金">金</button>
+                <button class="mutation-btn" data-value="20" data-name="水晶">水晶</button>
+                <button class="mutation-btn" data-value="30" data-name="流光">流光</button>
+                <button class="mutation-btn" data-value="40" data-name="星空">星空</button>
+            </div>
+        </div>
+        
+        <!-- 特殊突变 -->
+        <div class="card">
+            <div class="card-title">🔮 特殊突变 (单选)</div>
+            <div class="mutations-grid" id="specialMutation">
+                <button class="mutation-btn active" data-value="1" data-name="无">无</button>
+                <button class="mutation-btn" data-value="1.5" data-name="方形">方形</button>
+                <button class="mutation-btn" data-value="1.5" data-name="糖葫芦">糖葫芦</button>
+                <button class="mutation-btn" data-value="1.5" data-name="薯片">薯片</button>
+                <button class="mutation-btn" data-value="1.5" data-name="连体">连体</button>
+                <button class="mutation-btn" data-value="2" data-name="香蕉猴">香蕉猴</button>
+                <button class="mutation-btn" data-value="2" data-name="黄瓜蛇">黄瓜蛇</button>
+                <button class="mutation-btn" data-value="10" data-name="笑日葵">笑日葵</button>
+                <button class="mutation-btn" data-value="1.5" data-name="连体">连体</button>
+            </div>
+        </div>
+        
+        <!-- 天气值 -->
+        <div class="card">
+            <div class="card-title">🌤️ 天气突变 (可多选)</div>
+            <div class="mutations-grid" id="weather">
+                <button class="mutation-btn active" data-value="0" data-name="无">无</button>
+                <button class="mutation-btn" data-value="1" data-name="沙尘">沙尘</button>
+                <button class="mutation-btn" data-value="1" data-name="覆雪">覆雪</button>
+                <button class="mutation-btn" data-value="1" data-name="颤栗">颤栗</button>
+                <button class="mutation-btn" data-value="1" data-name="潮湿">潮湿</button>
+                <button class="mutation-btn" data-value="2" data-name="结霜">结霜</button>
+                <button class="mutation-btn" data-value="2" data-name="生机">生机</button>
+                <button class="mutation-btn" data-value="2" data-name="灼热">灼热</button>
+                <button class="mutation-btn" data-value="2" data-name="迷雾">迷雾</button>
+                <button class="mutation-btn" data-value="3" data-name="陨石">陨石</button>
+                <button class="mutation-btn" data-value="3" data-name="落雷">落雷</button>
+                <button class="mutation-btn" data-value="4" data-name="冰冻">冰冻</button>
+                <button class="mutation-btn" data-value="4" data-name="陶化">陶化</button>
+                <button class="mutation-btn" data-value="5" data-name="极光">极光</button>
+                <button class="mutation-btn" data-value="5" data-name="荧光">荧光</button>
+                <button class="mutation-btn" data-value="5" data-name="彩虹">彩虹</button>
+                <button class="mutation-btn" data-value="5" data-name="血月">血月</button>
+                <button class="mutation-btn" data-value="5" data-name="故障">故障</button>
+                <button class="mutation-btn" data-value="5" data-name="暗雾">暗雾</button>
+                <button class="mutation-btn" data-value="5" data-name="哈吉咪">哈吉咪</button>
+                <button class="mutation-btn" data-value="5" data-name="金币">金币</button>
+                <button class="mutation-btn" data-value="7" data-name="耀斑">耀斑</button>
+                <button class="mutation-btn" data-value="8" data-name="瓷化">瓷化</button>
+                <button class="mutation-btn" data-value="10" data-name="日蚀">日蚀</button>
+                <button class="mutation-btn" data-value="10" data-name="星环">星环</button>
+                <button class="mutation-btn" data-value="10" data-name="亮晶晶">亮晶晶</button>
+                <button class="mutation-btn" data-value="14" data-name="流火">流火</button>
+                <button class="mutation-btn" data-value="18" data-name="霓虹">霓虹</button>
+            </div>
+            <div class="selected-list" id="weatherSelected">已选: 无</div>
+        </div>
+        
+        <!-- 计算按钮 -->
+        <button class="btn btn-primary" onclick="calculate()">💰 计算价格</button>
+        <button class="btn btn-secondary" onclick="resetForm()">🔄 重置</button>
+        
+        <!-- 结果显示 -->
+        <div class="card result" id="result" style="display: none;">
+            <div class="result-label">预估价格</div>
+            <div class="result-value" id="price">0</div>
+            <div class="result-detail" id="priceDetail"></div>
+        </div>
+    </div>
+
+    <script>
+        // 基础突变选择（单选）
+        let basicValue = 1;
+        let basicName = '无';
+        document.getElementById('basicMutation').addEventListener('click', function(e) {
+            if (e.target.classList.contains('mutation-btn')) {
+                document.querySelectorAll('#basicMutation .mutation-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                basicValue = parseFloat(e.target.dataset.value);
+                basicName = e.target.dataset.name;
+            }
+        });
+        
+        // 特殊突变选择（单选）
+        let specialValue = 1;
+        let specialName = '无';
+        document.getElementById('specialMutation').addEventListener('click', function(e) {
+            if (e.target.classList.contains('mutation-btn')) {
+                document.querySelectorAll('#specialMutation .mutation-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                specialValue = parseFloat(e.target.dataset.value);
+                specialName = e.target.dataset.name;
+            }
+        });
+        
+        // 天气值选择（多选）
+        let weatherList = [{value: 0, name: '无'}];
+        document.getElementById('weather').addEventListener('click', function(e) {
+            if (e.target.classList.contains('mutation-btn')) {
+                const btn = e.target;
+                const value = parseFloat(btn.dataset.value);
+                const name = btn.dataset.name;
+                
+                if (name === '无') {
+                    document.querySelectorAll('#weather .mutation-btn').forEach(b => b.classList.remove('active'));
+                    weatherList = [{value: 0, name: '无'}];
+                    btn.classList.add('active');
+                } else {
+                    const noneBtn = document.querySelector('#weather .mutation-btn[data-name="无"]');
+                    noneBtn.classList.remove('active');
+                    
+                    if (btn.classList.contains('active')) {
+                        btn.classList.remove('active');
+                        weatherList = weatherList.filter(item => item.name !== name);
+                    } else {
+                        btn.classList.add('active');
+                        weatherList.push({value, name});
+                    }
+                    
+                    if (weatherList.length === 0) {
+                        noneBtn.classList.add('active');
+                        weatherList = [{value: 0, name: '无'}];
+                    }
+                }
+                
+                updateWeatherDisplay();
+            }
+        });
+        
+        function updateWeatherDisplay() {
+            const names = weatherList.map(w => w.name).join('、');
+            document.getElementById('weatherSelected').textContent = '已选: ' + names;
+        }
+        
+        // 更新作物信息
+        function updateCropInfo() {
+            const select = document.getElementById('crop');
+            const option = select.options[select.selectedIndex];
+            const name = option.getAttribute('data-name') || option.text;
+            const quality = option.getAttribute('data-quality') || '';
+            const value = option.value;
+            
+            let qualityClass = '';
+            switch(quality) {
+                case '至臻': qualityClass = 'quality-zhizhen'; break;
+                case '橙色': qualityClass = 'quality-chengse'; break;
+                case '紫色': qualityClass = 'quality-zise'; break;
+                case '蓝色': qualityClass = 'quality-lanse'; break;
+                case '蓝绿': qualityClass = 'quality-lanlu'; break;
+                case '绿色': qualityClass = 'quality-lvse'; break;
+            }
+            
+            const qualityTag = quality ? `<span class="quality-tag ${qualityClass}">${quality}</span>` : '';
+            document.getElementById('cropInfo').innerHTML = `${qualityTag} ${name}`;
+        }
+        
+        updateCropInfo();
+        
+        // 计算函数
+        function calculate() {
+            const cropValue = parseFloat(document.getElementById('crop').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            
+            if (!weight || weight <= 0) {
+                alert('请输入有效的重量！');
+                return;
+            }
+            
+            const weatherTotal = weatherList.reduce((sum, w) => sum + w.value, 0);
+            const weatherMultiplier = 1 + weatherTotal;
+            
+            const price = cropValue * Math.pow(weight, 1.5) * basicValue * specialValue * weatherMultiplier;
+            
+            document.getElementById('price').textContent = formatNumber(price);
+            
+            const weatherNames = weatherList.map(w => w.name).join('、');
+            document.getElementById('priceDetail').innerHTML = 
+                `作物: ${document.getElementById('crop').options[document.getElementById('crop').selectedIndex].text}<br>` +
+                `重量: ${weight}kg | 基础: ${basicName} | 特殊: ${specialName}<br>` +
+                `天气: ${weatherNames}`;
+            
+            document.getElementById('result').style.display = 'block';
+        }
+        
+        function formatNumber(num) {
+            if (num >= 100000000) {
+                return (num / 100000000).toFixed(2) + ' 亿';
+            } else if (num >= 10000) {
+                return (num / 10000).toFixed(2) + ' 万';
+            } else {
+                return Math.round(num).toLocaleString();
+            }
+        }
+        
+        function resetForm() {
+            document.getElementById('crop').selectedIndex = 0;
+            document.getElementById('weight').value = '';
+            document.getElementById('result').style.display = 'none';
+            updateCropInfo();
+            
+            basicValue = 1;
+            basicName = '无';
+            document.querySelectorAll('#basicMutation .mutation-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#basicMutation .mutation-btn')[0].classList.add('active');
+            
+            specialValue = 1;
+            specialName = '无';
+            document.querySelectorAll('#specialMutation .mutation-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#specialMutation .mutation-btn')[0].classList.add('active');
+            
+            weatherList = [{value: 0, name: '无'}];
+            document.querySelectorAll('#weather .mutation-btn').forEach(b => {
+                b.classList.remove('active');
+                if (b.dataset.name === '无') b.classList.add('active');
+            });
+            updateWeatherDisplay();
+        }
+    </script>
+</body>
+</html>
